@@ -1,21 +1,30 @@
-# Auth0 JavaScript Samples
+# Sample 02 - Calling an API
 
-# holloway-okta-auth0-technical-challenge
-A product demo of Auth0 authenticating a pizza ordering application
+This app demonstrates how to log in using the Auth0 Universal Page, and call a backend API using an access token.
 
-This repository holds the quickstart samples using [auth0-spa-js](https://github.com/auth0/auth0-spa-js).
+## Installation
 
-Read the [full tutorials on Auth0.com](https://auth0.com/docs/quickstart/spa/vanillajs).
+After cloning the repository, run:
 
-[![CircleCI](https://circleci.com/gh/auth0-samples/auth0-javascript-samples.svg?style=svg)](https://circleci.com/gh/auth0-samples/auth0-javascript-samples)
+```bash
+$ npm install
+```
 
+This will install all of the necessary packages in order for the sample to run.
 
-### Index
+## Running the Application
 
-List of available quickstarts
+To start the app from the terminal, run:
 
-- [01 - Login](/01-Login/)
-- [02 - Calling an API](/02-Calling-an-API/)
+```bash
+$ npm run dev
+```
+
+Open the application in the browser at [http://localhost:3000](http://localhost:3000).
+
+## Frequently Asked Questions
+
+We are compiling a list of questions and answers regarding the new JavaScript SDK - if you're having issues running the sample applications, [check the FAQ](https://github.com/auth0/auth0-spa-js/blob/master/FAQ.md)!
 
 ## What is Auth0?
 
@@ -40,16 +49,6 @@ If you have found a bug or if you have a feature request, please report them at 
 ## Author
 
 [Auth0](auth0.com)
-
-## Deploy to Netlify
-You can deploy this example as a site on your own to explore and experiment with, by clicking this button.
-After deploy, install Auth0 by Okta extension in Netlify and follow the steps to create an App. 
-
-<a href="https://app.netlify.com/start/deploy?repository=https://github.com/auth0-samples/auth0-javascript-samples"><img src="https://www.netlify.com/img/deploy/button.svg" alt="Deploy to Netlify" height=30px></a>
-
-
-
-
 
 ## License
 

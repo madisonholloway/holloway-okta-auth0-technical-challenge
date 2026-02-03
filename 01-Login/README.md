@@ -1,21 +1,43 @@
-# Auth0 JavaScript Samples
+# Sample 01 - Login
 
-# holloway-okta-auth0-technical-challenge
-A product demo of Auth0 authenticating a pizza ordering application
+The purpose of this article is to demonstrate how simple it is to set up and use the new Single Page Application SDK, and authenticate a user in your application using Auth0's Universal Login Page.
 
-This repository holds the quickstart samples using [auth0-spa-js](https://github.com/auth0/auth0-spa-js).
+## Running the Sample Application
 
-Read the [full tutorials on Auth0.com](https://auth0.com/docs/quickstart/spa/vanillajs).
+The sample can be run locally, by cloning the repository to your machine and then following the steps below.
 
-[![CircleCI](https://circleci.com/gh/auth0-samples/auth0-javascript-samples.svg?style=svg)](https://circleci.com/gh/auth0-samples/auth0-javascript-samples)
+### Specifying Auth0 Credentials
 
+To specify the application client ID and domain, make a copy of `auth_config.json.example` and rename it to `auth_config.json`. Then open it in a text editor and supply the values for your application:
 
-### Index
+```json
+{
+  "domain": "{DOMAIN}",
+  "clientId": "{CLIENT_ID}"
+}
+```
 
-List of available quickstarts
+### Installation
 
-- [01 - Login](/01-Login/)
-- [02 - Calling an API](/02-Calling-an-API/)
+After cloning the repository, run:
+
+```bash
+$ npm install
+```
+
+This will install all of the necessary packages in order for the sample to run.
+
+### Running the Application
+
+This version of the application uses an [Express](https://expressjs.com) server that can serve the site from a single page. To start the app from the terminal, run:
+
+```bash
+$ npm run dev
+```
+
+## Frequently Asked Questions
+
+We are compiling a list of questions and answers regarding the new JavaScript SDK - if you're having issues running the sample applications, [check the FAQ](https://github.com/auth0/auth0-spa-js/blob/master/FAQ.md)!
 
 ## What is Auth0?
 
@@ -40,16 +62,6 @@ If you have found a bug or if you have a feature request, please report them at 
 ## Author
 
 [Auth0](auth0.com)
-
-## Deploy to Netlify
-You can deploy this example as a site on your own to explore and experiment with, by clicking this button.
-After deploy, install Auth0 by Okta extension in Netlify and follow the steps to create an App. 
-
-<a href="https://app.netlify.com/start/deploy?repository=https://github.com/auth0-samples/auth0-javascript-samples"><img src="https://www.netlify.com/img/deploy/button.svg" alt="Deploy to Netlify" height=30px></a>
-
-
-
-
 
 ## License
 
