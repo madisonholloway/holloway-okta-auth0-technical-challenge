@@ -6,6 +6,8 @@ const router = {
     requireAuth(() => showContent("content-profile"), "/profile"),
   "/external-api": () =>
     requireAuth(() => showContent("content-external-api"), "/external-api"),
+  "/order-history": () =>
+    requireAuth(() => { showContent("content-order-history"); if (window.fetchOrders) { window.fetchOrders(); } }, "/order-history"),
   "/login": () => login()
 };
 

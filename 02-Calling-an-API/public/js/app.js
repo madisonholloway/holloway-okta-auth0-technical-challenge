@@ -56,7 +56,8 @@ const configureClient = async () => {
     domain: config.domain,
     clientId: config.clientId,
     authorizationParams: {
-      audience: config.audience
+      audience: config.audience,
+      scope: "openid profile email read:orders create:orders"
     }
   });
 };
@@ -126,19 +127,165 @@ window.onload = async () => {
     } else if (e.target.getAttribute("id") === "call-api") {
       e.preventDefault();
       callApi();
+    } else if (e.target && e.target.closest && e.target.closest('#pizza-grid')) {
+      const el = e.target;
+
+      if (el.classList.contains('btn-incr') || el.classList.contains('btn-decr')) {
+        e.preventDefault();
+        const input = el.closest('.input-group').querySelector('.pizza-qty');
+        const step = el.classList.contains('btn-incr') ? 1 : -1;
+        let val = parseInt(input.value || '0', 10) + step;
+        if (val < 0) val = 0;
+        input.value = val;
+        updateTotalPizzas();
+      }
+
+      if (el.getAttribute('id') === 'place-order') {
+        e.preventDefault();
+        requireAuth(() => placeOrder(), '/');
+      }
+    } else if (e.target && e.target.getAttribute && e.target.getAttribute('id') === 'refresh-orders') {
+      e.preventDefault();
+      requireAuth(() => window.fetchOrders && window.fetchOrders(), '/order-history');
     }
   });
 
   const isAuthenticated = await auth0Client.isAuthenticated();
 
   if (isAuthenticated) {
-    console.log("> User is authenticated");
+    console.log("User is authenticated");
     window.history.replaceState({}, document.title, window.location.pathname);
     updateUI();
     return;
   }
 
-  console.log("> User not authenticated");
+  console.log("User not authenticated");
+
+  // Pizza UI helpers
+  const updateTotalPizzas = () => {
+    const total = Array.from(document.querySelectorAll('.pizza-qty')).reduce((s, input) => s + Math.max(0, parseInt(input.value || '0', 10)), 0);
+    const totalEl = document.getElementById('total-pizzas');
+    const placeBtn = document.getElementById('place-order');
+    if (totalEl) totalEl.innerText = total;
+    if (placeBtn) placeBtn.disabled = total < 1; // enable when at least 1 pizza is selected
+  };
+
+  // Error display helpers
+  const showError = (msg) => {
+    const container = document.getElementById('global-alert-container');
+    if (!container) return;
+    container.innerHTML = `
+      <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <strong>Error:</strong> ${String(msg)}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+    `;
+  };
+
+  const clearError = () => {
+    const container = document.getElementById('global-alert-container');
+    if (container) container.innerHTML = '';
+  };
+
+  Array.from(document.querySelectorAll('.pizza-qty')).forEach((input) => {
+    input.addEventListener('change', updateTotalPizzas);
+    input.addEventListener('input', updateTotalPizzas);
+  });
+
+  // Ensure initial total and button state
+  updateTotalPizzas();
+
+  // Attach click handler to Place order button (outside the grid)
+  const placeBtnEl = document.getElementById('place-order');
+  if (placeBtnEl) {
+    placeBtnEl.addEventListener('click', (e) => {
+      e.preventDefault();
+      requireAuth(() => placeOrder(), '/');
+    });
+  }
+
+  const getSelectedPizzas = () => {
+    return Array.from(document.querySelectorAll('.pizza-qty')).map(input => ({ name: input.dataset.pizza, quantity: Math.max(0, parseInt(input.value || '0', 10)) })).filter(i=>i.quantity>0);
+  };
+
+
+  const placeOrder = async () => {
+    try {
+      const items = getSelectedPizzas();
+      if (items.length === 0) return;
+
+      clearError();
+
+      const token = await auth0Client.getTokenSilently();
+
+      console.log('[CLIENT DEBUG] Placing order. token present:', !!token, 'token length:', token ? token.length : 0);
+
+      const response = await fetch('/api/orders', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ order: { items } })
+      });
+      console.log('[CLIENT DEBUG] POST /api/orders response status:', response.status);
+
+      if (!response.ok) {
+        let errMsg = response.statusText || 'Error placing order';
+        try {
+          const errBody = await response.json();
+          if (errBody && errBody.message) errMsg = errBody.message;
+        } catch (_) {}
+        showError(errMsg);
+        return;
+      }
+
+      const responseData = await response.json();
+      clearError();
+      const responseElement = document.getElementById('api-call-result');
+
+      if (responseElement) responseElement.innerText = JSON.stringify(responseData, null, 2);
+      document.querySelectorAll('pre code').forEach(hljs.highlightBlock);
+      eachElement('.result-block', (c) => c.classList.add('show'));
+
+      // Reset quantities
+      Array.from(document.querySelectorAll('.pizza-qty')).forEach(i => i.value = 0);
+      updateTotalPizzas();
+    } catch (e) {
+      console.error(e);
+      showError(e && e.message ? e.message : 'Network error when placing order');
+    }
+  };
+
+  window.fetchOrders = async function() {
+    try {
+      clearError();
+      const token = await auth0Client.getTokenSilently();
+      console.log('[CLIENT DEBUG] Fetching orders. token present:', !!token, 'token length:', token ? token.length : 0);
+      const resp = await fetch('/api/orders', { headers: { Authorization: `Bearer ${token}` } });
+      console.log('[CLIENT DEBUG] GET /api/orders response status:', resp.status);
+      if (!resp.ok) {
+        let errMsg = resp.statusText || 'Error fetching orders';
+        try {
+          const eb = await resp.json();
+          if (eb && eb.message) errMsg = eb.message;
+        } catch (_) {}
+        showError(errMsg);
+        return;
+      }
+      const data = await resp.json();
+      const el = document.getElementById('orders-json');
+      if (el) el.innerText = JSON.stringify(data, null, 2);
+      document.querySelectorAll('pre code').forEach(hljs.highlightBlock);
+      eachElement('.result-block', (c) => c.classList.add('show'));
+    } catch (err) {
+      console.error('Error fetching orders:', err);
+      showError(err && err.message ? err.message : 'Network error when fetching orders');
+    }
+  };
+
 
   const query = window.location.search;
   const shouldParseResult = query.includes("code=") && query.includes("state=");
