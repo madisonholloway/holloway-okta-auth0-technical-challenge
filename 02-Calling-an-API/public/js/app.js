@@ -189,6 +189,24 @@ window.onload = async () => {
     if (container) container.innerHTML = '';
   };
 
+  const showSuccess = (msg) => {
+    const container = document.getElementById('global-alert-container');
+    if (!container) return;
+    container.innerHTML = `
+      <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <strong>Success!</strong> ${String(msg)}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+    `;
+  };
+
+  const clearSuccess = () => {
+    const container = document.getElementById('global-alert-container');
+    if (container) container.innerHTML = '';
+  };
+
   Array.from(document.querySelectorAll('.pizza-qty')).forEach((input) => {
     input.addEventListener('change', updateTotalPizzas);
     input.addEventListener('input', updateTotalPizzas);
@@ -217,6 +235,7 @@ window.onload = async () => {
       if (items.length === 0) return;
 
       clearError();
+      clearSuccess();
 
       const token = await auth0Client.getTokenSilently();
 
@@ -244,6 +263,7 @@ window.onload = async () => {
 
       const responseData = await response.json();
       clearError();
+      showSuccess('Your pizza order has been placed successfully!');
       const responseElement = document.getElementById('api-call-result');
 
       if (responseElement) responseElement.innerText = JSON.stringify(responseData, null, 2);
@@ -262,6 +282,7 @@ window.onload = async () => {
   window.fetchOrders = async function() {
     try {
       clearError();
+      clearSuccess();
       const token = await auth0Client.getTokenSilently();
       console.log('[CLIENT DEBUG] Fetching orders. token present:', !!token, 'token length:', token ? token.length : 0);
       const resp = await fetch('/api/orders', { headers: { Authorization: `Bearer ${token}` } });
