@@ -297,9 +297,37 @@ window.onload = async () => {
         return;
       }
       const data = await resp.json();
-      const el = document.getElementById('orders-json');
-      if (el) el.innerText = JSON.stringify(data, null, 2);
+      console.log('[CLIENT DEBUG] Full response data:', data);
+      const codeElement = document.getElementById('orders-json');
+      if (codeElement) codeElement.innerText = JSON.stringify(data, null, 2);
       document.querySelectorAll('pre code').forEach(hljs.highlightBlock);
+      const el = document.getElementById('orders-list');
+      if (el) {
+        // Handle both array and object responses
+        let orders = Array.isArray(data) ? data : (data && data.orders ? data.orders : []);
+        console.log('[CLIENT DEBUG] Extracted orders:', orders);
+        
+        if (!orders || orders.length === 0) {
+          el.innerHTML = '<p class="text-muted">No orders yet.</p>';
+        } else {
+          el.innerHTML = orders.map(order => {
+            console.log('[CLIENT DEBUG] Processing order:', order);
+            const orderNumber = order.order_number || '?';
+            const dateTime = order.date && order.time ? `${order.date}, ${order.time}` : 'Unknown date';
+            const itemsList = order.items && order.items.length > 0 
+              ? order.items.map(item => `${item.quantity} x ${item.name}`).join('<br>')
+              : 'No items';
+            return `
+              <div class="card mb-3">
+                <div class="card-body">
+                  <h6 class="card-title">Order #${orderNumber}: ${dateTime}</h6>
+                  <p class="card-text">${itemsList}</p>
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
+      }
       eachElement('.result-block', (c) => c.classList.add('show'));
     } catch (err) {
       console.error('Error fetching orders:', err);

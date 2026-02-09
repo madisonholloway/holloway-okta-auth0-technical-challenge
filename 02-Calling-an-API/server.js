@@ -63,24 +63,28 @@ async function appendOrderToUserMetadata(userId, order) {
 
     const existingOrders = userRes.data.user_metadata?.order_history || [];
 
-    // 3. Merge new order
-    const updatedOrders = [...existingOrders, {
-      order_id: order.id,
-      created_at: order.created_at,
-    }];
+    // 3. Append order
+    const updatedOrders = [...existingOrders, order];
 
     // 4. Update user_metadata
     await axios.patch(
       `https://${process.env.AUTH0_DOMAIN}/api/v2/users/${encodeURIComponent(userId)}`,
-      { user_metadata: { order_history: updatedOrders } },
-      { headers: { Authorization: `Bearer ${mgmtToken}` } }
+      {
+        user_metadata: {
+          order_history: updatedOrders,
+        },
+      },
+      {
+        headers: { Authorization: `Bearer ${mgmtToken}` },
+      }
     );
 
     console.log(`[M2M] Appended order ${order.id} to user ${userId}`);
   } catch (err) {
-    console.error(`[M2M] Failed to append order to user ${userId}:`, err.message);
-    // You can decide: fail the request or just log for audit
-    // return err;
+    console.error(
+      `[M2M] Failed to append order to user ${userId}:`,
+      err.message
+    );
   }
 }
 
@@ -95,18 +99,25 @@ app.post('/api/orders', checkJwt, requireCreateOrders, (req, res) => {
   try {
     const payload = req.auth?.payload;
 
+    console.log('[POST /api/orders] Received request');
+    console.log('[POST /api/orders] payload:', payload);
+
     if (!payload) {
       return res.status(401).json({ message: 'Invalid or missing access token' });
     }
 
     const { sub, exp, permissions = [] } = payload;
 
+    console.log('[POST /api/orders] sub:', sub);
+    console.log('[POST /api/orders] exp:', exp);
+    console.log('[POST /api/orders] permissions:', permissions);
+
     if (!sub) {
       return res.status(401).json({ message: 'Token missing subject (sub)' });
     }
 
-    const now = Math.floor(Date.now() / 1000);
-    if (exp < now) {
+    const nowEpoch = Math.floor(Date.now() / 1000);
+    if (exp < nowEpoch) {
       return res.status(401).json({ message: 'Access token has expired' });
     }
 
@@ -117,6 +128,8 @@ app.post('/api/orders', checkJwt, requireCreateOrders, (req, res) => {
     const emailVerified =
       payload['https://pizza-fourty-two.com/email_verified'];
 
+    console.log('[POST /api/orders] emailVerified:', emailVerified);
+
     if (emailVerified !== true) {
       return res
         .status(403)
@@ -124,22 +137,51 @@ app.post('/api/orders', checkJwt, requireCreateOrders, (req, res) => {
     }
 
     const order = req.body?.order;
-    if (!order) {
-      return res.status(400).json({ message: 'Missing order payload' });
+    console.log('[POST /api/orders] Received order from client:', JSON.stringify(order, null, 2));
+
+    if (!order || !Array.isArray(order.items)) {
+      return res
+        .status(400)
+        .json({ message: 'Order must include an items array' });
     }
+
+    // Build enriched order record
+    const now = new Date();
 
     const orderRecord = {
       id: Math.random().toString(36).slice(2, 9),
-      created_at: new Date().toISOString(),
-      ...order,
+
+      // Canonical timestamp (good for sorting / storage)
+      created_at: now.toISOString(),
+
+      // Friendly display fields
+      date: now.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+      }),
+      time: now.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
+
+      // Order contents
+      items: order.items, // [{ name, quantity }]
     };
 
+    console.log('[POST /api/orders] Created orderRecord:', JSON.stringify(orderRecord, null, 2));
+
     ordersByUser[sub] = [...(ordersByUser[sub] || []), orderRecord];
+    console.log('[POST /api/orders] Stored in ordersByUser[' + sub + '], total orders for user:', ordersByUser[sub].length);
+    console.log('[POST /api/orders] All orders for user:', JSON.stringify(ordersByUser[sub], null, 2));
 
-    // Call M2M helper to append order to Auth0
-    appendOrderToUserMetadata(sub, orderRecord)
-      .catch(err => console.error('Error saving order to Auth0 metadata:', err));
+    // Save to Auth0 user metadata (async, non-blocking)
+    console.log('[POST /api/orders] Calling appendOrderToUserMetadata...');
+    appendOrderToUserMetadata(sub, orderRecord).catch(err =>
+      console.error('Error saving order to Auth0 metadata:', err)
+    );
 
+    console.log('[POST /api/orders] Returning success response with orderRecord');
     return res.json({ success: true, order: orderRecord });
   } catch (err) {
     console.error('Error creating order:', err);
@@ -152,12 +194,23 @@ app.get('/api/orders', checkJwt, requireReadOrders, async (req, res) => {
     const payload = req.auth?.payload;
     const userId = payload?.sub;
 
+    console.log('[GET /api/orders] userId:', userId);
+    console.log('[GET /api/orders] ordersByUser keys:', Object.keys(ordersByUser));
+    console.log('[GET /api/orders] ordersByUser[userId]:', ordersByUser[userId]);
+
     if (!userId) {
       return res.status(400).json({ message: 'Missing user identifier in token' });
     }
 
-    // Get local orders
-    const localOrders = ordersByUser[userId] || [];
+    // Normalize local orders
+    const localOrders = (ordersByUser[userId] || []).map(order => ({
+      id: order.id,
+      created_at: order.created_at,
+      date: order.date,
+      time: order.time,
+      items: order.items,
+    }));
+    console.log('[GET /api/orders] localOrders:', JSON.stringify(localOrders, null, 2));
 
     // Fetch Auth0 order history from user_metadata
     let auth0Orders = [];
@@ -167,22 +220,54 @@ app.get('/api/orders', checkJwt, requireReadOrders, async (req, res) => {
         `https://${process.env.AUTH0_DOMAIN}/api/v2/users/${encodeURIComponent(userId)}`,
         { headers: { Authorization: `Bearer ${mgmtToken}` } }
       );
-      console.log(`[GET /api/orders] Fetched Auth0 metadata for ${userId}:`, userRes.data);
+
       auth0Orders = userRes.data.user_metadata?.order_history || [];
+      console.log('[GET /api/orders] auth0Orders from metadata:', JSON.stringify(auth0Orders, null, 2));
     } catch (err) {
-      console.warn(`[GET /api/orders] Failed to fetch Auth0 metadata for ${userId}:`, err.message);
-      // continue with local orders if M2M call fails
+      console.warn(
+        `[GET /api/orders] Failed to fetch Auth0 metadata for ${userId}:`,
+        err.message
+      );
     }
 
-    // Merge orders (optional: remove duplicates based on order_id)
+    // Merge orders (dedupe by id)
     const mergedOrders = [...localOrders];
+    console.log('[GET /api/orders] Starting merge with mergedOrders:', JSON.stringify(mergedOrders, null, 2));
+
     auth0Orders.forEach(order => {
-      if (!mergedOrders.find(o => o.id === order.order_id)) {
-        mergedOrders.push({ id: order.order_id, created_at: order.created_at });
+      const normalizedOrder = {
+        id: order.id || order.order_id,
+        created_at: order.created_at,
+        date: order.date,
+        time: order.time,
+        items: order.items,
+      };
+      console.log('[GET /api/orders] Processing auth0 order, normalized:', JSON.stringify(normalizedOrder, null, 2));
+
+      if (!mergedOrders.find(o => o.id === normalizedOrder.id)) {
+        console.log('[GET /api/orders] Adding new order to merged:', normalizedOrder.id);
+        mergedOrders.push(normalizedOrder);
       }
     });
 
-    return res.json({ success: true, orders: mergedOrders });
+    // Optional: newest first
+    mergedOrders.sort(
+      (a, b) => new Date(b.created_at) - new Date(a.created_at)
+    );
+    
+    // Filter out orders without items
+    const filteredOrders = mergedOrders.filter(order => order.items && Array.isArray(order.items) && order.items.length > 0);
+    console.log('[GET /api/orders] After filtering out empty orders:', JSON.stringify(filteredOrders, null, 2));
+    
+    // Add order numbers (oldest = #1, newest = highest number)
+    const ordersWithNumbers = filteredOrders.reverse().map((order, index) => ({
+      ...order,
+      order_number: index + 1
+    })).reverse(); // reverse back to newest first
+    
+    console.log('[GET /api/orders] Final ordersWithNumbers:', JSON.stringify(ordersWithNumbers, null, 2));
+
+    return res.json({ success: true, orders: ordersWithNumbers });
   } catch (err) {
     console.error('Error getting orders:', err);
     return res.status(500).json({ message: err.message });
