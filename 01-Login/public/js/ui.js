@@ -53,6 +53,61 @@ const showContent = (id) => {
   document.getElementById(id).classList.remove("hidden");
 };
 
+const normalizePizzaName = (value) =>
+  String(value || "")
+    .toLowerCase()
+    .replace(/&/g, "and")
+    .replace(/[^a-z0-9 ]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+const applySuggestion = (favorite) => {
+  const suggestionEl = document.getElementById("pizza-suggestion");
+  if (!suggestionEl) return;
+
+  if (!favorite) {
+    suggestionEl.innerHTML = "";
+    return;
+  }
+
+  const favoriteKey = normalizePizzaName(favorite);
+  const suggestions = {
+    "meat lovers": "Buffalo",
+    "buffalo": "Meat Lovers",
+    "cheese": "Margherita",
+    "margherita": "Prosciutto & Arugula",
+    "prosciutto and arugula": "Margherita",
+    "gluten free": "Prosciutto & Arugula"
+  };
+
+  const suggestion = suggestions[favoriteKey];
+  suggestionEl.innerHTML = suggestion
+    ? `<p><strong style="text-decoration: underline;">Craving something new?</strong> Since ${favorite} is your go-to, we think you'll love the bold flavor of our ${suggestion} Pizza.</p>`
+    : "";
+};
+
+const applyFavoriteBadge = (favorite) => {
+  document.querySelectorAll(".favorite-badge").forEach((el) => el.remove());
+  document.querySelectorAll("#pizza-grid h5[data-pizza]").forEach((title) => {
+    title.classList.remove("has-favorite");
+  });
+  if (!favorite) return;
+
+  const favoriteName = normalizePizzaName(favorite);
+  const titles = document.querySelectorAll("#pizza-grid h5[data-pizza]");
+
+  titles.forEach((title) => {
+    const pizzaName = normalizePizzaName(title.dataset.pizza || title.textContent);
+    if (pizzaName === favoriteName) {
+      title.classList.add("has-favorite");
+      const badge = document.createElement("span");
+      badge.className = "favorite-badge";
+      badge.innerHTML = '<i class="fas fa-heart"></i> Personal Favorite';
+      title.appendChild(badge);
+    }
+  });
+};
+
 /**
  * Updates the user interface
  */
@@ -73,12 +128,58 @@ const updateUI = async () => {
 
       eachElement(".profile-image", (e) => (e.src = user.picture));
       eachElement(".user-name", (e) => (e.innerText = user.name));
-      eachElement(".user-email", (e) => (e.innerText = "email address: " + user.email));
+      eachElement(".user-email", (e) => (e.innerText = "Email Address: " + user.email));
+      
+      // Add email verification badge
+      const badgeContainer = document.getElementById("email-verification-badge");
+      if (badgeContainer) {
+        const isVerified = user.email_verified === true;
+        const badgeClass = isVerified ? 'badge-verified' : 'badge-unverified';
+        const badgeText = isVerified ? 'VERIFIED' : 'UNVERIFIED';
+        badgeContainer.innerHTML = `<span class="${badgeClass}">${badgeText}</span>`;
+      }
+      
+      // Add loyalty tier badge
+      const loyaltyContainer = document.getElementById("loyalty-tier-badge");
+      if (loyaltyContainer) {
+        const loyaltyTier = user['https://pizza42/loyaltyTier'] || 'bronze';
+        console.warn('Loyalty tier from user profile:', loyaltyTier);
+        const loyaltyClass = `loyalty-badge loyalty-${loyaltyTier}`;
+        console.warn('Applying loyalty badge with class:', loyaltyClass);
+        loyaltyContainer.innerHTML = `<span class="${loyaltyClass}"><i class="fas fa-star"></i> ${loyaltyTier.charAt(0).toUpperCase() + loyaltyTier.slice(1)}</span>`;
+        console.warn('Loyalty badge HTML:', loyaltyContainer.innerHTML);
+      }
+
+      const couponContainer = document.getElementById("coupon-badge");
+      if (couponContainer) {
+        const couponCode =
+          user['https://pizza42/loyaltyPromotionCoupon'] ||
+          user.loyaltyPromotionCoupon ||
+          user.coupon ||
+          user.couponCode;
+        couponContainer.innerHTML = couponCode
+          ? `<span class="coupon-badge"><i class="fas fa-tag"></i> ${couponCode}</span>`
+          : "";
+      }
+
+      const favoritePizza =
+        user['https://pizza42/favoritePizza'] ||
+        user.favoritePizza ||
+        user.favorite_pizza ||
+        user.favorite_pizza_name ||
+        user.favoritePizzaName;
+      applyFavoriteBadge(favoritePizza);
+      applySuggestion(favoritePizza);
+      
       eachElement(".auth-invisible", (e) => e.classList.add("hidden"));
       eachElement(".auth-visible", (e) => e.classList.remove("hidden"));
     } else {
       eachElement(".auth-invisible", (e) => e.classList.remove("hidden"));
       eachElement(".auth-visible", (e) => e.classList.add("hidden"));
+      applyFavoriteBadge(null);
+      applySuggestion(null);
+      const couponContainer = document.getElementById("coupon-badge");
+      if (couponContainer) couponContainer.innerHTML = "";
     }
   } catch (err) {
     console.log("Error updating UI!", err);

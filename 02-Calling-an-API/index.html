@@ -36,7 +36,12 @@
       <div class="nav-container">
         <nav class="navbar navbar-expand-md navbar-light bg-light">
           <div class="container">
-            <div class="navbar-brand logo"></div>
+            <a class="navbar-brand" href="/">
+              <img src="/images/pizza-logo.png" alt="Company Logo" class="top-left-logo" />
+            </a>
+            <div class="navbar-logo-center">
+              <img src="/images/text-logo.png" alt="Company Logo" class="company-logo" />
+            </div>
             <button
               class="navbar-toggler"
               type="button"
@@ -53,13 +58,6 @@
               <ul class="navbar-nav mr-auto">
                 <li class="nav-item">
                   <a href="/" class="nav-link route-link">Home</a>
-                </li>
-                <li class="nav-item">
-                  <a
-                    href="/external-api"
-                    class="nav-link route-link hidden auth-visible"
-                    >External API</a
-                  >
                 </li>
                 <li class="nav-item">
                   <a
@@ -176,28 +174,15 @@
       </div>
 
       <div id="main-content" class="container mt-5 flex-grow-1">
-        <div id="global-alert-container" class="my-3"></div>
         <div id="content-home" class="page">
-          <!-- <div class="text-center hero">
-            <img
-              class="mb-3 app-logo"
-              src="/images/logo.png"
-              alt="JavaScript logo"
-              width="75"
-            /> -->
-            <!-- <h1 class="mb-4">Pizza 42</h1>
-
-            <p class="lead">
-              This is a sample application that demonstrates an authentication
-              flow for an SPA, using plain JavaScript
-            </p> -->
-          <!-- </div> -->
 
           <div id="pizza-menu" class="my-5">
+            <div id="pizza-suggestion" class="pizza-suggestion"></div>
             <div class="row" id="pizza-grid">
               <div class="col-md-4 mb-3">
                 <div class="card p-3 d-flex align-items-center">
-                  <h5>Cheese</h5>
+                  <h5 data-pizza="Cheese">Cheese</h5>
+                  <img src="/images/pizza-images/cheese.jpeg" alt="Cheese Pizza" class="img-fluid pizza-img mt-2" style="max-height:150px; object-fit:cover;" />
                   <div class="input-group mt-2">
                     <div class="input-group-prepend">
                       <button class="btn btn-outline-secondary btn-decr" type="button">-</button>
@@ -212,7 +197,8 @@
 
               <div class="col-md-4 mb-3">
                 <div class="card p-3 d-flex align-items-center">
-                  <h5>Margherita</h5>
+                  <h5 data-pizza="Margherita">Margherita</h5>
+                  <img src="/images/pizza-images/margherita.jpeg" alt="Margherita Pizza" class="img-fluid pizza-img mt-2" style="max-height:150px; object-fit:cover;" />
                   <div class="input-group mt-2">
                     <div class="input-group-prepend">
                       <button class="btn btn-outline-secondary btn-decr" type="button">-</button>
@@ -227,7 +213,8 @@
 
               <div class="col-md-4 mb-3">
                 <div class="card p-3 d-flex align-items-center">
-                  <h5>Meat Lovers</h5>
+                  <h5 data-pizza="Meat Lovers">Meat Lovers</h5>
+                  <img src="/images/pizza-images/meat-lovers.jpeg" alt="Meat Lovers Pizza" class="img-fluid pizza-img mt-2" style="max-height:150px; object-fit:cover;" />
                   <div class="input-group mt-2">
                     <div class="input-group-prepend">
                       <button class="btn btn-outline-secondary btn-decr" type="button">-</button>
@@ -242,7 +229,8 @@
 
               <div class="col-md-4 mb-3">
                 <div class="card p-3 d-flex align-items-center">
-                  <h5>Buffalo</h5>
+                  <h5 data-pizza="Buffalo">Buffalo</h5>
+                  <img src="/images/pizza-images/buffalo.jpeg" alt="Buffalo Pizza" class="img-fluid pizza-img mt-2" style="max-height:150px; object-fit:cover;" />
                   <div class="input-group mt-2">
                     <div class="input-group-prepend">
                       <button class="btn btn-outline-secondary btn-decr" type="button">-</button>
@@ -257,7 +245,8 @@
 
               <div class="col-md-4 mb-3">
                 <div class="card p-3 d-flex align-items-center">
-                  <h5>Prosciutto & Arugula</h5>
+                  <h5 data-pizza="Prosciutto & Arugula">Prosciutto & Arugula</h5>
+                  <img src="/images/pizza-images/prosciutto-arugala.jpeg" alt="Prosciutto & Arugula Pizza" class="img-fluid pizza-img mt-2" style="max-height:150px; object-fit:cover;" />
                   <div class="input-group mt-2">
                     <div class="input-group-prepend">
                       <button class="btn btn-outline-secondary btn-decr" type="button">-</button>
@@ -272,7 +261,8 @@
 
               <div class="col-md-4 mb-3">
                 <div class="card p-3 d-flex align-items-center">
-                  <h5>Gluten Free</h5>
+                  <h5 data-pizza="Gluten Free">Gluten Free</h5>
+                  <img src="/images/pizza-images/gluten-free.jpeg" alt="Gluten Free Pizza" class="img-fluid pizza-img mt-2" style="max-height:150px; object-fit:cover;" />
                   <div class="input-group mt-2">
                     <div class="input-group-prepend">
                       <button class="btn btn-outline-secondary btn-decr" type="button">-</button>
@@ -291,76 +281,6 @@
               <button id="place-order" class="btn btn-primary" disabled>Place order</button>
             </div>
           </div>
-
-          <!-- <div class="next-steps">
-            <h2 class="my-5 text-center">What can I do next?</h2>
-
-            <div class="row">
-              <div class="col-md-5 mb-4">
-                <h6 class="mb-3">
-                  <a href="https://auth0.com/docs/connections">
-                    <i class="fas fa-link"></i> Configure other identity
-                    providers
-                  </a>
-                </h6>
-                <p>
-                  Auth0 supports social providers as Facebook, Twitter,
-                  Instagram and 100+, Enterprise providers as Microsoft Office
-                  365, Google Apps, Azure, and more. You can also use any OAuth2
-                  Authorization Server.
-                </p>
-              </div>
-
-              <div class="col-md"></div>
-
-              <div class="col-md-5 mb-4">
-                <h6 class="mb-3">
-                  <a href="https://auth0.com/docs/multifactor-authentication">
-                    <i class="fas fa-link"></i> Enable Multifactor
-                    Authentication
-                  </a>
-                </h6>
-                <p>
-                  Add an extra layer of security by enabling Multi-factor
-                  Authentication, requiring your users to provide more than one
-                  piece of identifying information. Push notifications,
-                  authenticator apps, SMS, and DUO Security are supported.
-                </p>
-              </div>
-            </div>
-
-            <div class="row">
-              <div class="col-md-5 mb-4">
-                <h6 class="mb-3">
-                  <a href="https://auth0.com/docs/anomaly-detection">
-                    <i class="fas fa-link"></i> Anomaly Detection
-                  </a>
-                </h6>
-                <p>
-                  Auth0 can detect anomalies and stop malicious attempts to
-                  access your application. Anomaly detection can alert you and
-                  your users of suspicious activity, as well as block further
-                  login attempts.
-                </p>
-              </div>
-
-              <div class="col-md"></div>
-
-              <div class="col-md-5 mb-4">
-                <h6 class="mb-3">
-                  <a href="https://auth0.com/docs/rules">
-                    <i class="fas fa-link"></i> Learn About Rules
-                  </a>
-                </h6>
-                <p>
-                  Rules are JavaScript functions that execute when a user
-                  authenticates to your application. They run once the
-                  authentication process is complete, and you can use them to
-                  customize and extend Auth0's capabilities.
-                </p>
-              </div>
-            </div>
-          </div> -->
         </div>
 
         <div class="page" id="content-profile">
@@ -374,44 +294,46 @@
               </div>
               <div class="col-md">
                 <h2 class="user-name"></h2>
-                <p class="lead text-muted user-email"></p>
+                <p class="lead text-muted">
+                  <span class="user-email"></span>
+                  <span id="email-verification-badge"></span>
+                </p>
+                <p class="lead text-muted">
+                  Loyalty Tier:
+                  <span id="loyalty-tier-badge"></span>
+                </p>
+                <p class="lead text-muted">
+                  Coupon Available:
+                  <span id="coupon-badge"></span>
+                </p>
               </div>
             </div>
 
-            <div class="row">
-              <pre class="rounded">
-                <code id="profile-data" class="json"></code></pre>
-            </div>
-          </div>
-        </div>
-
-        <div class="page" id="content-external-api">
-          <h1>External API</h1>
-          <p>
-            Ping an external API by clicking the button below. This will call
-            the external API using an access token, and the API will validate it
-            using the API's audience value.
-          </p>
-
-          <p class="mb-5">
-            <a href="#" class="btn btn-primary mt-5" id="call-api">Ping API</a>
-          </p>
-
-          <div class="result-block-container">
-            <div class="result-block reset-on-nav">
-              <h6 class="muted">Result</h6>
-              <pre>
-                <code class="js rounded" id="api-call-result">JSON.stringify(apiMessage, null, 2)</code>
-              </pre>
+            <div class="row mt-4">
+              <div class="col-md-12">
+                <button
+                  class="btn btn-secondary btn-sm"
+                  type="button"
+                  data-toggle="collapse"
+                  data-target="#profileDataCollapse"
+                  aria-expanded="false"
+                  aria-controls="profileDataCollapse"
+                >
+                  View raw profile data
+                </button>
+                <div class="collapse mt-3" id="profileDataCollapse">
+                  <pre class="rounded">
+                    <code id="profile-data" class="json"></code>
+                  </pre>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
         <div class="page" id="content-order-history">
           <h1>Order History</h1>
-          <p>
-            View your order history.
-          </p>
+          <div id="order-history-favorite" class="order-history-favorite"></div>
 
           <p class="mb-5">
             <a href="#" class="btn btn-primary mt-2" id="refresh-orders">Refresh orders</a>
@@ -419,13 +341,25 @@
 
           <div class="result-block-container">
             <div class="result-block reset-on-nav">
-              <h6 class="muted">Order history</h6>
               <div id="orders-list" class="orders-list">
                 <p class="text-muted">No orders yet.</p>
               </div>
-              <pre>
-                <code class="js rounded" id="orders-json">[]</code>
-              </pre>
+              
+              <button
+                class="btn btn-secondary btn-sm mt-3"
+                type="button"
+                data-toggle="collapse"
+                data-target="#ordersDataCollapse"
+                aria-expanded="false"
+                aria-controls="ordersDataCollapse"
+              >
+                View raw order history data
+              </button>
+              <div class="collapse mt-3" id="ordersDataCollapse">
+                <pre>
+                  <code class="js rounded" id="orders-json">[]</code>
+                </pre>
+              </div>
             </div>
           </div>
         </div>
@@ -433,6 +367,25 @@
       
       </div>
 
+    </div>
+
+    <!-- Alert Modal -->
+    <div class="modal fade" id="alertModal" tabindex="-1" role="dialog" aria-labelledby="alertModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header" id="alertModalHeader">
+            <h5 class="modal-title" id="alertModalLabel"></h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body" id="alertModalBody">
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>

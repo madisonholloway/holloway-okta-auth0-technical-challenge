@@ -36,7 +36,12 @@
       <div class="nav-container">
         <nav class="navbar navbar-expand-md navbar-light bg-light">
           <div class="container">
-            <div class="navbar-brand logo"></div>
+            <a class="navbar-brand" href="/">
+              <img src="/images/pizza-logo.png" alt="Company Logo" class="top-left-logo" />
+            </a>
+            <div class="navbar-logo-center">
+              <img src="/images/text-logo.png" alt="Company Logo" class="company-logo" />
+            </div>
             <button
               class="navbar-toggler"
               type="button"
@@ -163,19 +168,52 @@
 
       <div id="main-content" class="container mt-5 flex-grow-1">
         <div id="content-home" class="page">
-          <div class="text-center hero">
-            <img
-              class="mb-3 app-logo"
-              src="/images/logo.png"
-              alt="Pizza 42 logo"
-              width="75"
-            />
-            <h1 class="mb-4">Pizza 42</h1>
 
-            <p class="lead">
-              This is a sample application that demonstrates an authentication
-              flow for an SPA, using plain JavaScript
-            </p>
+          <div id="pizza-menu" class="my-5">
+            <div id="pizza-suggestion" class="pizza-suggestion"></div>
+            <div class="row" id="pizza-grid">
+              <div class="col-md-4 mb-3">
+                <div class="card p-3 d-flex align-items-center">
+                  <h5 data-pizza="Cheese">Cheese</h5>
+                  <img src="/images/pizza-images/cheese.jpeg" alt="Cheese Pizza" class="img-fluid pizza-img mt-2" style="max-height:150px; object-fit:cover;" />
+                </div>
+              </div>
+
+              <div class="col-md-4 mb-3">
+                <div class="card p-3 d-flex align-items-center">
+                  <h5 data-pizza="Margherita">Margherita</h5>
+                  <img src="/images/pizza-images/margherita.jpeg" alt="Margherita Pizza" class="img-fluid pizza-img mt-2" style="max-height:150px; object-fit:cover;" />
+                </div>
+              </div>
+
+              <div class="col-md-4 mb-3">
+                <div class="card p-3 d-flex align-items-center">
+                  <h5 data-pizza="Meat Lovers">Meat Lovers</h5>
+                  <img src="/images/pizza-images/meat-lovers.jpeg" alt="Meat Lovers Pizza" class="img-fluid pizza-img mt-2" style="max-height:150px; object-fit:cover;" />
+                </div>
+              </div>
+
+              <div class="col-md-4 mb-3">
+                <div class="card p-3 d-flex align-items-center">
+                  <h5 data-pizza="Buffalo">Buffalo</h5>
+                  <img src="/images/pizza-images/buffalo.jpeg" alt="Buffalo Pizza" class="img-fluid pizza-img mt-2" style="max-height:150px; object-fit:cover;" />
+                </div>
+              </div>
+
+              <div class="col-md-4 mb-3">
+                <div class="card p-3 d-flex align-items-center">
+                  <h5 data-pizza="Prosciutto & Arugula">Prosciutto & Arugula</h5>
+                  <img src="/images/pizza-images/prosciutto-arugala.jpeg" alt="Prosciutto & Arugula Pizza" class="img-fluid pizza-img mt-2" style="max-height:150px; object-fit:cover;" />
+                </div>
+              </div>
+
+              <div class="col-md-4 mb-3">
+                <div class="card p-3 d-flex align-items-center">
+                  <h5 data-pizza="Gluten Free">Gluten Free</h5>
+                  <img src="/images/pizza-images/gluten-free.jpeg" alt="Gluten Free Pizza" class="img-fluid pizza-img mt-2" style="max-height:150px; object-fit:cover;" />
+                </div>
+              </div>
+            </div>
           </div>
 
           <div class="next-steps">
@@ -260,13 +298,39 @@
               </div>
               <div class="col-md">
                 <h2 class="user-name"></h2>
-                <p class="lead text-muted user-email"></p>
+                <p class="lead text-muted">
+                  <span class="user-email"></span>
+                  <span id="email-verification-badge"></span>
+                </p>
+                <p class="lead text-muted">
+                  Loyalty Tier:
+                  <span id="loyalty-tier-badge"></span>
+                </p>
+                <p class="lead text-muted">
+                  Coupon Available:
+                  <span id="coupon-badge"></span>
+                </p>
               </div>
             </div>
 
-            <div class="row">
-              <pre class="rounded">
-                <code id="profile-data" class="json"></code></pre>
+            <div class="row mt-4">
+              <div class="col-md-12">
+                <button
+                  class="btn btn-secondary btn-sm"
+                  type="button"
+                  data-toggle="collapse"
+                  data-target="#profileDataCollapse"
+                  aria-expanded="false"
+                  aria-controls="profileDataCollapse"
+                >
+                  View raw profile data
+                </button>
+                <div class="collapse mt-3" id="profileDataCollapse">
+                  <pre class="rounded">
+                    <code id="profile-data" class="json"></code>
+                  </pre>
+                </div>
+              </div>
             </div>
           </div>
         </div>

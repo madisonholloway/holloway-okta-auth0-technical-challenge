@@ -172,39 +172,39 @@ window.onload = async () => {
 
   // Error display helpers
   const showError = (msg) => {
-    const container = document.getElementById('global-alert-container');
-    if (!container) return;
-    container.innerHTML = `
-      <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        <strong>Error:</strong> ${String(msg)}
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-    `;
+    const modalHeader = document.getElementById('alertModalHeader');
+    const modalTitle = document.getElementById('alertModalLabel');
+    const modalBody = document.getElementById('alertModalBody');
+    
+    if (modalHeader) modalHeader.style.backgroundColor = '#f8d7da';
+    if (modalHeader) modalHeader.style.borderColor = '#f5c6cb';
+    if (modalTitle) modalTitle.textContent = 'Error';
+    if (modalTitle) modalTitle.style.color = '#721c24';
+    if (modalBody) modalBody.innerHTML = `<p style="color: #721c24;">${String(msg)}</p>`;
+    
+    $('#alertModal').modal('show');
   };
 
   const clearError = () => {
-    const container = document.getElementById('global-alert-container');
-    if (container) container.innerHTML = '';
+    $('#alertModal').modal('hide');
   };
 
   const showSuccess = (msg) => {
-    const container = document.getElementById('global-alert-container');
-    if (!container) return;
-    container.innerHTML = `
-      <div class="alert alert-success alert-dismissible fade show" role="alert">
-        <strong>Success!</strong> ${String(msg)}
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-    `;
+    const modalHeader = document.getElementById('alertModalHeader');
+    const modalTitle = document.getElementById('alertModalLabel');
+    const modalBody = document.getElementById('alertModalBody');
+    
+    if (modalHeader) modalHeader.style.backgroundColor = '#d4edda';
+    if (modalHeader) modalHeader.style.borderColor = '#c3e6cb';
+    if (modalTitle) modalTitle.textContent = 'Success';
+    if (modalTitle) modalTitle.style.color = '#155724';
+    if (modalBody) modalBody.innerHTML = `<p style="color: #155724;">${String(msg)}</p>`;
+    
+    $('#alertModal').modal('show');
   };
 
   const clearSuccess = () => {
-    const container = document.getElementById('global-alert-container');
-    if (container) container.innerHTML = '';
+    $('#alertModal').modal('hide');
   };
 
   Array.from(document.querySelectorAll('.pizza-qty')).forEach((input) => {
@@ -320,7 +320,7 @@ window.onload = async () => {
             return `
               <div class="card mb-3">
                 <div class="card-body">
-                  <h6 class="card-title">Order #${orderNumber}: ${dateTime}</h6>
+                  <h6 class="card-title order-number"><strong>Order #${orderNumber}: ${dateTime}</strong></h6>
                   <p class="card-text">${itemsList}</p>
                 </div>
               </div>
