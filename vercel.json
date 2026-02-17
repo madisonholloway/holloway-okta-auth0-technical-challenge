@@ -1,5 +1,4 @@
 {
-  "version": 2,
   "builds": [
     {
       "src": "02-Calling-an-API/server.js",
