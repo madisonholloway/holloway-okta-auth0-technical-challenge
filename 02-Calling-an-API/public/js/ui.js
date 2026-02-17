@@ -8,8 +8,7 @@ const router = {
   "/profile": () =>
     requireAuth(() => showContent("content-profile"), "/profile"),
   "/order-history": () =>
-    requireAuth(() => { showContent("content-order-history"); if (window.fetchOrders) { window.fetchOrders(); } }, "/order-history"),
-  "/login": () => login()
+    requireAuth(() => { showContent("content-order-history"); if (window.fetchOrders) { window.fetchOrders(); } }, "/order-history")
 };
 
 // Declare helper functions
