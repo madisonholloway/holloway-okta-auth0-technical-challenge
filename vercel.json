@@ -1,11 +1,27 @@
 {
   "version": 2,
   "builds": [
-    { "src": "server.js", "use": "@vercel/node" },
-    { "src": "index.html", "use": "@vercel/static" }
+    {
+      "src": "02-Calling-an-API/server.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "01-Login/public/**",
+      "use": "@vercel/static"
+    }
   ],
   "routes": [
-    { "src": "/(api/.*)", "dest": "server.js" },
-    { "src": "/(.*)", "dest": "/index.html" }
+    {
+      "src": "/api/(.*)",
+      "dest": "/02-Calling-an-API/server.js"
+    },
+    {
+      "src": "/auth_config.json",
+      "dest": "/02-Calling-an-API/server.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/02-Calling-an-API/server.js"
+    }
   ]
 }
