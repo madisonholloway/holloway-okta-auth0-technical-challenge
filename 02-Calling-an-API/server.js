@@ -39,15 +39,59 @@ app.use(helmet());
 app.use(express.static(join(__dirname, "public")));
 app.use(express.json());
 
+/**
+ * checkJwt Middleware
+ * 
+ * JWT validation middleware from the express-oauth2-jwt-bearer Auth0 SDK.
+ * Validates incoming JWT access tokens on API endpoints.
+ * 
+ * What it does:
+ * - Checks that the access token is signed by your Auth0 tenant (issuerBaseURL)
+ * - Verifies the token includes the correct audience so it was intended for this API
+ * - Validates expiry (exp), signature, and token structure
+ * - Populates req.auth.payload with the decoded token payload
+ * 
+ * Tools Used:
+ * - Auth0 Express SDK (express-oauth2-jwt-bearer) → simplifies JWT validation
+ * - JWT tokens → standard OpenID Connect/OAuth 2.0 access tokens
+ * 
+ * Why It Matters for Pizza 42:
+ * - Security: Ensures only authorized customers can call /api/orders
+ * - Least privilege: Only tokens issued for your API are valid
+ * - Business integrity: Protects order placement, so unauthorized users cannot spoof orders
+ * 
+ * @see https://auth0.com/docs/quickstart/backend/nodejs
+ */
 const checkJwt = auth({
   audience: authConfig.audience,
   issuerBaseURL: `https://${authConfig.domain}`,
 });
 
 /**
- * Retrieves a Management API token using the M2M client credentials flow.
- * Requires AUTH0_DOMAIN, AUTH0_M2M_CLIENT_ID, and AUTH0_M2M_CLIENT_SECRET.
+ * getMgmtToken()
+ * 
+ * Retrieves a Management API token using the Machine-to-Machine (M2M) client credentials flow.
+ * This allows the server to interact with Auth0 Management API to read/write user metadata.
+ * 
+ * What it does:
+ * - Uses Machine-to-Machine (M2M) client credentials flow to get a management API access token
+ * - Authenticates your backend server with Auth0 using client credentials
+ * - Returns a short-lived, scoped access token for Auth0 Management API operations
+ * 
+ * Tools Used:
+ * - Axios → HTTP client for calling Auth0 API
+ * - Auth0 Management API (/api/v2) → Auth0's comprehensive user management API
+ * - OAuth 2.0 Client Credentials Flow → standard for server-to-server communication
+ * 
+ * Why It Matters for Pizza 42:
+ * - Persisting order history: Ensures marketing team can access enriched customer data
+ * - Customer loyalty programs: Order history enables personalized experiences and rewards
+ * - Secure server-to-server communication: Tokens are short-lived, scoped, and never exposed to frontend
+ * - Data enrichment: Favorite pizza tracking, order frequency analysis for business insights
+ * 
  * @returns {Promise<string>} Access token for Auth0 Management API
+ * @throws {Error} If authentication fails or credentials are invalid
+ * @see https://auth0.com/docs/secure/tokens/access-tokens/management-api-access-tokens
  */
 async function getMgmtToken() {
   try {
@@ -69,10 +113,29 @@ async function getMgmtToken() {
 }
 
 /**
- * Appends a new order record to Auth0 user_metadata.order_history.
- * This runs asynchronously and does not block the API response.
- * @param {string} userId Auth0 user ID (sub)
- * @param {object} order Order record to append
+ * appendOrderToUserMetadata(userId, order)
+ * 
+ * Persists a new order record to Auth0 user metadata for long-term storage and customer insights.
+ * This function runs asynchronously and does not block the API response.
+ * 
+ * What it does:
+ * 1. Calls getMgmtToken() → gets access to Auth0 Management API
+ * 2. Fetches existing user_metadata for the given userId
+ * 3. Appends the new order to the order_history array
+ * 4. Updates user_metadata via a PATCH request to Auth0
+ * 
+ * Why It Matters for Pizza 42:
+ * - Order history persistence: Even if the local server restarts, historical orders are stored securely in Auth0
+ * - Customer personalization: Metadata enables upselling opportunities and loyalty programs
+ * - Marketing insights: Team can analyze customer preferences, favorite pizzas, and order patterns
+ * - Scalable: Async, non-blocking updates prevent slowing down order placement
+ * - Security: M2M token ensures only your backend can modify user metadata
+ * - Cross-session continuity: Users can access their order history from any device
+ * 
+ * @param {string} userId - Auth0 user ID (sub claim from JWT)
+ * @param {object} order - Order record to append (includes id, created_at, date, time, items)
+ * @returns {Promise<void>} Resolves when metadata is updated (errors are logged but not thrown)
+ * @see https://auth0.com/docs/manage-users/user-accounts/metadata
  */
 async function appendOrderToUserMetadata(userId, order) {
   try {
