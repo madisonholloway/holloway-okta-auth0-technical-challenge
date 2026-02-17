@@ -20,7 +20,7 @@ const authConfig = require("./auth_config.json");
 const app = express();
 
 if (!authConfig.domain || !authConfig.audience) {
-  throw "Please make sure that auth_config.json is in place and populated";
+  throw new Error("Please make sure that auth_config.json is in place and populated");
 }
 
 app.use(morgan("dev"));
@@ -39,16 +39,22 @@ const checkJwt = auth({
  * @returns {Promise<string>} Access token for Auth0 Management API
  */
 async function getMgmtToken() {
-  const response = await axios.post(
-    `https://${process.env.AUTH0_DOMAIN}/oauth/token`,
-    {
-      client_id: process.env.AUTH0_M2M_CLIENT_ID,
-      client_secret: process.env.AUTH0_M2M_CLIENT_SECRET,
-      audience: `https://${process.env.AUTH0_DOMAIN}/api/v2/`,
-      grant_type: "client_credentials"
-    }
-  );
-  return response.data.access_token;
+  try {
+    const response = await axios.post(
+      `https://${process.env.AUTH0_DOMAIN}/oauth/token`,
+      {
+        client_id: process.env.AUTH0_M2M_CLIENT_ID,
+        client_secret: process.env.AUTH0_M2M_CLIENT_SECRET,
+        audience: `https://${process.env.AUTH0_DOMAIN}/api/v2/`,
+        grant_type: "client_credentials"
+      }
+    );
+    return response.data.access_token;
+  } catch (err) {
+    // Log only error message to avoid exposing credentials
+    console.error('Failed to retrieve Management API token:', err.message);
+    throw err;
+  }
 }
 
 /**
@@ -284,7 +290,7 @@ app.use(function(err, req, res, next) {
     return res.status(401).send({ msg: "Invalid token" });
   }
 
-  next(err, req, res);
+  next(err);
 });
 
 process.on("SIGINT", function() {

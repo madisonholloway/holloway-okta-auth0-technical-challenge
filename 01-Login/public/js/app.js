@@ -121,7 +121,9 @@ window.onload = async () => {
       if (result.appState && result.appState.targetUrl) {
         showContentFromUrl(result.appState.targetUrl);
       }
-    } catch (err) {}
+    } catch (err) {
+      console.error("Error parsing redirect:", err);
+    }
 
     window.history.replaceState({}, document.title, "/");
   }
