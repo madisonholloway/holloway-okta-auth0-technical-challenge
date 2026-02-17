@@ -2,7 +2,8 @@
 let auth0Client = null;
 
 /**
- * Starts the authentication flow
+ * Starts the authentication flow using Auth0 Universal Login.
+ * @param {string} [targetUrl] Optional SPA route to return to after login
  */
 const login = async (targetUrl) => {
   try {
@@ -25,7 +26,7 @@ const login = async (targetUrl) => {
 };
 
 /**
- * Executes the logout flow
+ * Executes the logout flow and returns to the SPA root.
  */
 const logout = async () => {
   try {
@@ -41,12 +42,14 @@ const logout = async () => {
 };
 
 /**
- * Retrieves the auth configuration from the server
+ * Retrieves the auth configuration from the server.
+ * @returns {Promise<Response>} Fetch response for auth_config.json
  */
 const fetchAuthConfig = () => fetch("/auth_config.json");
 
 /**
- * Initializes the Auth0 client
+ * Initializes the Auth0 client using SPA SDK.
+ * Audience and scopes are configured for the Orders API.
  */
 const configureClient = async () => {
   const response = await fetchAuthConfig();
@@ -63,9 +66,10 @@ const configureClient = async () => {
 };
 
 /**
- * Checks to see if the user is authenticated. If so, `fn` is executed. Otherwise, the user
- * is prompted to log in
- * @param {*} fn The function to execute if the user is logged in
+ * Checks authentication state before executing `fn`.
+ * If unauthenticated, triggers login with a return URL.
+ * @param {Function} fn Function to execute if the user is logged in
+ * @param {string} targetUrl Route to return to after login
  */
 const requireAuth = async (fn, targetUrl) => {
   const isAuthenticated = await auth0Client.isAuthenticated();
@@ -78,7 +82,7 @@ const requireAuth = async (fn, targetUrl) => {
 };
 
 /**
- * Calls the API endpoint with an authorization token
+ * Calls the protected API endpoint with an access token.
  */
 const callApi = async () => {
   try {
@@ -162,6 +166,9 @@ window.onload = async () => {
   console.log("User not authenticated");
 
   // Pizza UI helpers
+  /**
+   * Updates total quantity and button state for the pizza order UI.
+   */
   const updateTotalPizzas = () => {
     const total = Array.from(document.querySelectorAll('.pizza-qty')).reduce((s, input) => s + Math.max(0, parseInt(input.value || '0', 10)), 0);
     const totalEl = document.getElementById('total-pizzas');
@@ -171,6 +178,10 @@ window.onload = async () => {
   };
 
   // Error display helpers
+  /**
+   * Displays an error modal with a provided message.
+   * @param {string} msg Error message to render
+   */
   const showError = (msg) => {
     const modalHeader = document.getElementById('alertModalHeader');
     const modalTitle = document.getElementById('alertModalLabel');
@@ -185,10 +196,17 @@ window.onload = async () => {
     $('#alertModal').modal('show');
   };
 
+  /**
+   * Hides the modal dialog (error or success).
+   */
   const clearError = () => {
     $('#alertModal').modal('hide');
   };
 
+  /**
+   * Displays a success modal with a provided message.
+   * @param {string} msg Success message to render
+   */
   const showSuccess = (msg) => {
     const modalHeader = document.getElementById('alertModalHeader');
     const modalTitle = document.getElementById('alertModalLabel');
@@ -203,6 +221,9 @@ window.onload = async () => {
     $('#alertModal').modal('show');
   };
 
+  /**
+   * Hides the modal dialog (success).
+   */
   const clearSuccess = () => {
     $('#alertModal').modal('hide');
   };
@@ -224,11 +245,17 @@ window.onload = async () => {
     });
   }
 
+  /**
+   * Returns selected pizza items with quantities.
+   * @returns {{name: string, quantity: number}[]}
+   */
   const getSelectedPizzas = () => {
     return Array.from(document.querySelectorAll('.pizza-qty')).map(input => ({ name: input.dataset.pizza, quantity: Math.max(0, parseInt(input.value || '0', 10)) })).filter(i=>i.quantity>0);
   };
 
-
+  /**
+   * Places a pizza order via the protected API.
+   */
   const placeOrder = async () => {
     try {
       const items = getSelectedPizzas();
@@ -279,6 +306,9 @@ window.onload = async () => {
     }
   };
 
+  /**
+   * Fetches and renders order history from the protected API.
+   */
   window.fetchOrders = async function() {
     try {
       clearError();

@@ -1,3 +1,12 @@
+/**
+ * Express API server for the “Calling an API” sample.
+ *
+ * Responsibilities:
+ * - Serve the SPA assets
+ * - Validate access tokens with Auth0
+ * - Provide protected order endpoints
+ * - Optionally persist order history to Auth0 user metadata
+ */
 require('dotenv').config();
 const express = require("express");
 const morgan = require("morgan");
@@ -35,6 +44,11 @@ const checkJwt = auth({
   issuerBaseURL: `https://${authConfig.domain}`,
 });
 
+/**
+ * Retrieves a Management API token using the M2M client credentials flow.
+ * Requires AUTH0_DOMAIN, AUTH0_M2M_CLIENT_ID, and AUTH0_M2M_CLIENT_SECRET.
+ * @returns {Promise<string>} Access token for Auth0 Management API
+ */
 async function getMgmtToken() {
   const response = await axios.post(
     `https://${process.env.AUTH0_DOMAIN}/oauth/token`,
@@ -48,6 +62,12 @@ async function getMgmtToken() {
   return response.data.access_token;
 }
 
+/**
+ * Appends a new order record to Auth0 user_metadata.order_history.
+ * This runs asynchronously and does not block the API response.
+ * @param {string} userId Auth0 user ID (sub)
+ * @param {object} order Order record to append
+ */
 async function appendOrderToUserMetadata(userId, order) {
   try {
     // 1. Get M2M token
@@ -89,12 +109,17 @@ async function appendOrderToUserMetadata(userId, order) {
 }
 
 
+// In-memory order cache by user ID (reset on server restart)
 const ordersByUser = {};
 
 // Orders endpoints
 const requireCreateOrders = requiredScopes('create:orders');
 const requireReadOrders = requiredScopes('read:orders');
 
+/**
+ * Create a new order.
+ * Requires create:orders scope and verified email claim.
+ */
 app.post('/api/orders', checkJwt, requireCreateOrders, (req, res) => {
   try {
     const payload = req.auth?.payload;
@@ -189,6 +214,10 @@ app.post('/api/orders', checkJwt, requireCreateOrders, (req, res) => {
   }
 });
 
+/**
+ * Fetch order history for the authenticated user.
+ * Requires read:orders scope.
+ */
 app.get('/api/orders', checkJwt, requireReadOrders, async (req, res) => {
   try {
     const payload = req.auth?.payload;
@@ -275,6 +304,9 @@ app.get('/api/orders', checkJwt, requireReadOrders, async (req, res) => {
 });
 
 
+/**
+ * Example protected endpoint used to validate token handling.
+ */
 app.get("/api/external", checkJwt, (req, res) => {
   res.send({
     msg: "Your access token was successfully validated!"

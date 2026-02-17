@@ -1,26 +1,132 @@
 # Sample 02 - Calling an API
 
-This app demonstrates how to log in using the Auth0 Universal Page, and call a backend API using an access token.
+This app demonstrates how to log in using the Auth0 Universal Page and call a backend API using an access token. It includes a pizza ordering UI, authenticated profile view, and order-history calls secured by OAuth scopes.
 
-## Installation
+## Contents
+
+- [Overview](#overview)
+- [Prerequisites](#prerequisites)
+- [Install](#install)
+- [Configure Auth0](#configure-auth0)
+- [Environment Variables](#environment-variables)
+- [Run](#run)
+- [How it Works](#how-it-works)
+- [API Endpoints](#api-endpoints)
+- [Project Structure](#project-structure)
+- [Troubleshooting](#troubleshooting)
+
+## Overview
+
+- Single Page App (SPA) built with vanilla JavaScript and Bootstrap.
+- Auth0 SPA SDK for login/logout, token retrieval, and session handling.
+- Express server that validates JWTs and exposes protected API routes.
+- Order history stored in memory and optionally mirrored to Auth0 user metadata.
+
+## Prerequisites
+
+- Node.js 16+ and npm
+- An Auth0 tenant with:
+	- A **Single Page Application**
+	- An **API** (audience)
+	- An optional **Machine-to-Machine** app for writing user metadata
+
+## Install
 
 After cloning the repository, run:
 
 ```bash
-$ npm install
+npm install
 ```
 
-This will install all of the necessary packages in order for the sample to run.
+## Configure Auth0
 
-## Running the Application
+Edit [auth_config.json](auth_config.json) in this folder:
+
+```json
+{
+	"domain": "YOUR_TENANT.auth0.com",
+	"clientId": "YOUR_SPA_CLIENT_ID",
+	"audience": "YOUR_API_AUDIENCE"
+}
+```
+
+Make sure the API has scopes enabled for:
+
+- `read:orders`
+- `create:orders`
+
+The SPA requests these scopes during login in [public/js/app.js](public/js/app.js).
+
+## Environment Variables
+
+Create a `.env` file in this folder for Auth0 Management API access (optional but recommended if you want orders persisted in user metadata):
+
+```
+AUTH0_DOMAIN=YOUR_TENANT.auth0.com
+AUTH0_M2M_CLIENT_ID=YOUR_M2M_CLIENT_ID
+AUTH0_M2M_CLIENT_SECRET=YOUR_M2M_CLIENT_SECRET
+```
+
+These values are used in [server.js](server.js) to call the Auth0 Management API.
+
+## Run
 
 To start the app from the terminal, run:
 
 ```bash
-$ npm run dev
+npm run dev
 ```
 
 Open the application in the browser at [http://localhost:3000](http://localhost:3000).
+
+## How it Works
+
+- **Login** uses the Auth0 Universal Login page.
+- **Token retrieval** uses `getTokenSilently()` to call API endpoints.
+- **Protected API routes** validate JWTs and enforce required scopes.
+- **Order history** is stored in memory and merged with Auth0 user metadata if configured.
+
+Key client logic:
+
+- Authentication & routing: [public/js/app.js](public/js/app.js)
+- UI rendering & profile badges: [public/js/ui.js](public/js/ui.js)
+
+## API Endpoints
+
+All endpoints require a valid access token issued for the configured audience.
+
+- `GET /api/external`
+	- Validates the access token and returns a success message.
+
+- `POST /api/orders`
+	- Requires scope `create:orders`.
+	- Validates `email_verified` claim before accepting the order.
+	- Stores orders in memory and asynchronously appends to Auth0 user metadata.
+
+- `GET /api/orders`
+	- Requires scope `read:orders`.
+	- Returns merged order history from memory and Auth0 user metadata.
+
+## Project Structure
+
+```
+02-Calling-an-API/
+	auth_config.json         # Auth0 tenant, client ID, API audience
+	server.js                 # Express API + Auth0 JWT validation
+	public/
+		index.html              # SPA shell
+		css/main.css            # Visual styles
+		js/app.js               # Auth0 + SPA routing + API calls
+		js/ui.js                # UI helpers and profile rendering
+	bin/www                   # Express server bootstrap
+```
+
+## Troubleshooting
+
+- **Login succeeds but API calls fail**: verify `audience` and scopes match your API configuration.
+- **403 on order creation**: ensure the user’s `email_verified` claim is `true`.
+- **Orders not persisted in Auth0**: verify `.env` values and M2M app permissions for `update:users` and `read:users`.
+- **CORS issues**: ensure your Auth0 application settings include the correct callback and logout URLs.
 
 ## Frequently Asked Questions
 
