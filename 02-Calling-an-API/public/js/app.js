@@ -266,8 +266,6 @@ window.onload = async () => {
 
       const token = await auth0Client.getTokenSilently();
 
-      console.log('[CLIENT DEBUG] Placing order. token present:', !!token, 'token length:', token ? token.length : 0);
-
       const response = await fetch('/api/orders', {
         method: 'POST',
         headers: {
@@ -276,7 +274,6 @@ window.onload = async () => {
         },
         body: JSON.stringify({ order: { items } })
       });
-      console.log('[CLIENT DEBUG] POST /api/orders response status:', response.status);
 
       if (!response.ok) {
         let errMsg = response.statusText || 'Error placing order';
@@ -314,9 +311,7 @@ window.onload = async () => {
       clearError();
       clearSuccess();
       const token = await auth0Client.getTokenSilently();
-      console.log('[CLIENT DEBUG] Fetching orders. token present:', !!token, 'token length:', token ? token.length : 0);
       const resp = await fetch('/api/orders', { headers: { Authorization: `Bearer ${token}` } });
-      console.log('[CLIENT DEBUG] GET /api/orders response status:', resp.status);
       if (!resp.ok) {
         let errMsg = resp.statusText || 'Error fetching orders';
         try {
@@ -327,7 +322,6 @@ window.onload = async () => {
         return;
       }
       const data = await resp.json();
-      console.log('[CLIENT DEBUG] Full response data:', data);
       const codeElement = document.getElementById('orders-json');
       if (codeElement) codeElement.innerText = JSON.stringify(data, null, 2);
       document.querySelectorAll('pre code').forEach(hljs.highlightBlock);
@@ -335,13 +329,11 @@ window.onload = async () => {
       if (el) {
         // Handle both array and object responses
         let orders = Array.isArray(data) ? data : (data && data.orders ? data.orders : []);
-        console.log('[CLIENT DEBUG] Extracted orders:', orders);
         
         if (!orders || orders.length === 0) {
           el.innerHTML = '<p class="text-muted">No orders yet.</p>';
         } else {
           el.innerHTML = orders.map(order => {
-            console.log('[CLIENT DEBUG] Processing order:', order);
             const orderNumber = order.order_number || '?';
             const dateTime = order.date && order.time ? `${order.date}, ${order.time}` : 'Unknown date';
             const itemsList = order.items && order.items.length > 0 
@@ -370,7 +362,6 @@ window.onload = async () => {
   const shouldParseResult = query.includes("code=") && query.includes("state=");
 
   if (shouldParseResult) {
-    console.log("> Parsing redirect");
     try {
       const result = await auth0Client.handleRedirectCallback();
 

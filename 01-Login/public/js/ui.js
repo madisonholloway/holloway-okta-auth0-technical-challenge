@@ -143,11 +143,8 @@ const updateUI = async () => {
       const loyaltyContainer = document.getElementById("loyalty-tier-badge");
       if (loyaltyContainer) {
         const loyaltyTier = user['https://pizza42/loyaltyTier'] || 'bronze';
-        console.warn('Loyalty tier from user profile:', loyaltyTier);
         const loyaltyClass = `loyalty-badge loyalty-${loyaltyTier}`;
-        console.warn('Applying loyalty badge with class:', loyaltyClass);
         loyaltyContainer.innerHTML = `<span class="${loyaltyClass}"><i class="fas fa-star"></i> ${loyaltyTier.charAt(0).toUpperCase() + loyaltyTier.slice(1)}</span>`;
-        console.warn('Loyalty badge HTML:', loyaltyContainer.innerHTML);
       }
 
       const couponContainer = document.getElementById("coupon-badge");
