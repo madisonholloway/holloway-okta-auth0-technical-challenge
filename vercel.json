@@ -1,0 +1,29 @@
+{
+  "builds": [
+    {
+      "src": "02-Calling-an-API/server.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "01-Login/public/**",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/api/(.*)",
+      "dest": "/02-Calling-an-API/server.js"
+    },
+    {
+      "src": "/auth_config.json",
+      "dest": "/02-Calling-an-API/server.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/02-Calling-an-API/server.js"
+    }
+  ]
+}
