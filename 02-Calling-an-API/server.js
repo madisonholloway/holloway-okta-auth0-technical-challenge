@@ -13,6 +13,7 @@ const morgan = require("morgan");
 const helmet = require("helmet");
 const { auth, requiredScopes } = require("express-oauth2-jwt-bearer");
 const axios = require('axios');
+const { v4: uuidv4 } = require('uuid');
 const { join } = require("path");
 const authConfig = require("./auth_config.json");
 
@@ -151,7 +152,7 @@ app.post('/api/orders', checkJwt, requireCreateOrders, (req, res) => {
     const now = new Date();
 
     const orderRecord = {
-      id: Math.random().toString(36).slice(2, 9),
+      id: uuidv4(),
 
       // Canonical timestamp (good for sorting / storage)
       created_at: now.toISOString(),
