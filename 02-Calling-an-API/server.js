@@ -176,7 +176,7 @@ app.post('/api/orders', checkJwt, requireCreateOrders, (req, res) => {
 
     // Save to Auth0 user metadata (async, non-blocking)
     appendOrderToUserMetadata(sub, orderRecord).catch(err =>
-      console.error('Error saving order to Auth0 metadata')
+      console.error('Error saving order to Auth0 metadata', err)
     );
     return res.json({ success: true, order: orderRecord });
   } catch (err) {

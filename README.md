@@ -39,7 +39,7 @@ If you have found a bug or if you have a feature request, please report them at 
 
 ## Author
 
-[Auth0](auth0.com)
+[Auth0](https://auth0.com)
 
 ## Deploy to Netlify
 You can deploy this example as a site on your own to explore and experiment with, by clicking this button.
