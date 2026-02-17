@@ -48,8 +48,26 @@ const logout = async () => {
 const fetchAuthConfig = () => fetch("/auth_config.json");
 
 /**
- * Initializes the Auth0 client using SPA SDK.
- * Audience and scopes are configured for the Orders API.
+ * Initializes the Auth0 SPA SDK client.
+ *
+ * WHAT IT DOES:
+ * - Fetches Auth0 configuration from the backend.
+ * - Creates an Auth0 client instance.
+ * - Configures audience and scopes for the Orders API.
+ *
+ * WHY IT'S IMPORTANT:
+ * - Defines which API this SPA can access (audience).
+ * - Defines what actions are allowed (scopes).
+ *
+ * SECURITY VALUE:
+ * Scopes like:
+ *   read:orders
+ *   create:orders
+ * enforce least-privilege access.
+ *
+ * PIZZA 42 CONTEXT:
+ * Customers can only perform actions explicitly granted —
+ * like placing or viewing their own orders.
  */
 const configureClient = async () => {
   const response = await fetchAuthConfig();
@@ -66,10 +84,23 @@ const configureClient = async () => {
 };
 
 /**
- * Checks authentication state before executing `fn`.
- * If unauthenticated, triggers login with a return URL.
- * @param {Function} fn Function to execute if the user is logged in
- * @param {string} targetUrl Route to return to after login
+ * Ensures a user is authenticated before executing protected logic.
+ *
+ * WHAT IT DOES:
+ * - Checks if the user is logged in.
+ * - If authenticated → executes provided function.
+ * - If not → redirects to login.
+ *
+ * WHY IT'S IMPORTANT:
+ * - Protects sensitive actions from unauthenticated access.
+ * - Centralizes authentication checks.
+ *
+ * PIZZA 42 CONTEXT:
+ * Prevents anonymous users from:
+ * - Placing pizza orders
+ * - Viewing order history
+ *
+ * This enforces business rules at the UI layer.
  */
 const requireAuth = async (fn, targetUrl) => {
   const isAuthenticated = await auth0Client.isAuthenticated();
