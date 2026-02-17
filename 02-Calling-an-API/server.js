@@ -139,15 +139,6 @@ app.post('/api/orders', checkJwt, requireCreateOrders, (req, res) => {
       return res.status(401).json({ message: 'Token missing subject (sub)' });
     }
 
-    const nowEpoch = Math.floor(Date.now() / 1000);
-    if (exp < nowEpoch) {
-      return res.status(401).json({ message: 'Access token has expired' });
-    }
-
-    if (!permissions.includes('create:orders')) {
-      return res.status(403).json({ message: 'Missing create:orders permission' });
-    }
-
     const emailVerified =
       payload['https://pizza-fourty-two.com/email_verified'];
 
