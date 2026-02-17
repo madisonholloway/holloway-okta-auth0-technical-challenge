@@ -19,6 +19,7 @@ Configure the following environment variables in your Vercel project settings:
 | Variable | Value | Description |
 |----------|-------|-------------|
 | `AUTH0_DOMAIN` | `YOUR_TENANT.auth0.com` | Your Auth0 tenant domain (e.g., `pizza-fourty-two.us.auth0.com`) |
+| `AUTH0_CLIENT_ID` | Your SPA Client ID | Single Page Application client ID from Auth0 dashboard |
 | `AUTH0_AUDIENCE` | `https://YOUR_API_IDENTIFIER/` | Your Auth0 API identifier/audience (e.g., `https://holloway-pizza-42-api.com/`) |
 | `AUTH0_M2M_CLIENT_ID` | Your M2M Client ID | Machine-to-Machine client ID for Auth0 Management API |
 | `AUTH0_M2M_CLIENT_SECRET` | Your M2M Client Secret | Machine-to-Machine client secret (keep this secure) |
@@ -95,8 +96,9 @@ After deployment, verify both applications work:
 ## Troubleshooting
 
 **"Please configure Auth0 credentials" error:**
-- Ensure all four environment variables are set in Vercel project settings:
+- Ensure all five environment variables are set in Vercel project settings:
   - `AUTH0_DOMAIN`
+  - `AUTH0_CLIENT_ID`
   - `AUTH0_AUDIENCE`
   - `AUTH0_M2M_CLIENT_ID`
   - `AUTH0_M2M_CLIENT_SECRET`

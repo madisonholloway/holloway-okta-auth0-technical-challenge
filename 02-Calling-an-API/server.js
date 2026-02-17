@@ -284,7 +284,12 @@ app.get("/api/external", checkJwt, (req, res) => {
 });
 
 app.get("/auth_config.json", (req, res) => {
-  res.sendFile(join(__dirname, "auth_config.json"));
+  // Return auth config as JSON (works in both local and production environments)
+  res.json({
+    domain: authConfig.domain,
+    clientId: authConfig.clientId,
+    audience: authConfig.audience
+  });
 });
 
 app.get("/*", (req, res) => {
