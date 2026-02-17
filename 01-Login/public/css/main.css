@@ -1,0 +1,178 @@
+/*
+ * Main stylesheet for the Login sample.
+ * Includes layout, branding, and profile badge styles.
+ */
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap');
+
+.hidden {
+  display: none;
+}
+label {
+  margin-bottom: 10px;
+  display: block;
+}
+
+.navbar {
+  min-height: 115px;
+  background-color: #f78a0a !important;
+}
+
+.navbar .nav-link {
+  font-size: 22px;
+}
+
+.navbar-logo-center {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+}
+
+.company-logo {
+  max-height: 120px;
+  max-width: 300px;
+  object-fit: contain;
+}
+
+.top-left-logo {
+  max-height: 60px;
+  max-width: 150px;
+  object-fit: contain;
+}
+
+.card {
+  box-shadow: 8px 8px 0 rgba(27, 23, 188, 0.7);
+  border-color: rgba(27, 23, 188, 0.4);
+}
+
+.badge-verified {
+  display: inline-block;
+  background-color: #28a745;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: bold;
+  margin-left: 8px;
+}
+
+.badge-unverified {
+  display: inline-block;
+  background-color: #6c757d;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: bold;
+  margin-left: 8px;
+}
+
+.loyalty-badge {
+  display: inline-block;
+  color: #ffffff;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: bold;
+  margin-left: 8px;
+}
+
+.loyalty-badge .fa-star {
+  color: #ffffff;
+}
+
+#content-profile p.lead.text-muted {
+  color: #1b17bc !important;
+}
+
+.loyalty-bronze {
+  background-color: #CD7F32;
+}
+
+.loyalty-silver {
+  background-color: #C0C0C0;
+}
+
+.loyalty-gold {
+  background-color: #FFD700;
+}
+
+html, body {
+  background-color: #f78a0a !important;
+  font-family: 'Instrument Serif', serif;
+  color: #1b17bc !important;
+  font-style: normal;
+  font-size: 20px;
+}
+
+body, body * {
+  color: #1b17bc;
+}
+
+a, a:hover, a:focus, a:visited {
+  color: #1b17bc !important;
+}
+
+.dropdown-header,
+.dropdown-menu .dropdown-item,
+.dropdown-menu .dropdown-item i,
+.dropdown-menu .dropdown-item span {
+  color: #1b17bc !important;
+}
+
+#pizza-grid h5 {
+  font-style: italic;
+}
+
+#pizza-grid h5.has-favorite {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pizza-suggestion {
+  margin: 0 0 16px;
+  font-weight: bold;
+}
+
+.suggestion-value {
+  font-weight: normal;
+}
+
+.favorite-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 6px;
+  padding: 6px 10px;
+  border-radius: 12px;
+  background-color: #ff4d6d;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.favorite-badge .fa-heart {
+  color: #ffffff;
+}
+
+#qsLoginBtn {
+  font-size: 22px;
+}
+
+.coupon-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  background-color: #e53935;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.coupon-badge .fa-tag {
+  color: #ffffff;
+}

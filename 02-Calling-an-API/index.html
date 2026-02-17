@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<!--
+  Pizza 42 SPA shell for the Calling-an-API sample.
+  Routes are handled client-side by public/js/app.js and public/js/ui.js.
+-->
+<html class="h-100">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Pizza 42</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    />
+    <link rel="stylesheet" type="text/css" href="/css/main.css" />
+    <link
+      rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/styles/monokai-sublime.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://use.fontawesome.com/releases/v5.7.2/css/solid.css"
+      integrity="sha384-r/k8YTFqmlOaqRkZuSiE9trsrDXkh07mRaoGBMoDcmA58OHILZPsk29i2BsFng1B"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="https://use.fontawesome.com/releases/v5.7.2/css/fontawesome.css"
+      integrity="sha384-4aon80D8rXCGx9ayDt85LbyUHeMWd3UiBaWliBlJ53yzm9hqN21A+o1pqoyK04h+"
+      crossorigin="anonymous"
+    />
+
+    <link
+      rel="stylesheet"
+      href="https://cdn.auth0.com/js/auth0-samples-theme/1.0/css/auth0-theme.min.css"
+    />
+  </head>
+
+  <body class="h-100">
+    <div id="app" class="h-100 d-flex flex-column">
+      <div class="nav-container">
+        <nav class="navbar navbar-expand-md navbar-light bg-light">
+          <div class="container">
+            <a class="navbar-brand" href="/">
+              <img src="/images/pizza-logo.png" alt="Company Logo" class="top-left-logo" />
+            </a>
+            <div class="navbar-logo-center">
+              <img src="/images/text-logo.png" alt="Company Logo" class="company-logo" />
+            </div>
+            <button
+              class="navbar-toggler"
+              type="button"
+              data-toggle="collapse"
+              data-target="#navbarNav"
+              aria-controls="navbarNav"
+              aria-expanded="false"
+              aria-label="Toggle navigation"
+            >
+              <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+              <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                  <a href="/" class="nav-link route-link">Home</a>
+                </li>
+                <li class="nav-item">
+                  <a
+                    href="/order-history"
+                    class="nav-link route-link hidden auth-visible"
+                    >Order History</a
+                  >
+                </li>
+              </ul>
+              <ul class="navbar-nav d-none d-md-block">
+                <!-- Login button: show if NOT authenticated -->
+                <li class="nav-item auth-invisible">
+                  <button
+                    id="qsLoginBtn"
+                    onclick="login()"
+                    class="btn btn-primary btn-margin auth-invisible hidden"
+                  >
+                    Log in or Sign up
+                  </button>
+                </li>
+                <!-- / Login button -->
+
+                <!-- Fullsize dropdown: show if authenticated -->
+                <li class="nav-item dropdown auth-visible hidden">
+                  <a
+                    class="nav-link dropdown-toggle"
+                    href="#"
+                    id="profileDropDown"
+                    data-toggle="dropdown"
+                  >
+                    <!-- Profile image should be set to the profile picture from the id token -->
+                    <img
+                      alt="Profile picture"
+                      class="nav-user-profile profile-image rounded-circle"
+                      width="50"
+                    />
+                  </a>
+                  <div class="dropdown-menu">
+                    <!-- Show the user's full name from the id token here -->
+                    <div class="dropdown-header nav-user-name user-name"></div>
+                    <a
+                      href="/profile"
+                      class="dropdown-item dropdown-profile route-link"
+                    >
+                      <i class="fas fa-user mr-3"></i> Profile
+                    </a>
+                    <a
+                      href="#"
+                      class="dropdown-item"
+                      id="qsLogoutBtn"
+                      onclick="logout()"
+                    >
+                      <i class="fas fa-power-off mr-3"></i> Log out
+                    </a>
+                  </div>
+                </li>
+                <!-- /Fullsize dropdown -->
+              </ul>
+
+              <!-- Responsive login button: show if NOT authenticated -->
+              <ul class="navbar-nav d-md-none auth-invisible">
+                <button
+                  class="btn btn-primary btn-block auth-invisible hidden"
+                  id="qsLoginBtn"
+                  onclick="login()"
+                >
+                  Log in or Sign up
+                </button>
+              </ul>
+              <!-- /Responsive login button -->
+
+              <!-- Responsive profile dropdown: show if authenticated -->
+              <ul
+                class="
+                  navbar-nav
+                  d-md-none
+                  auth-visible
+                  hidden
+                  justify-content-between
+                "
+                style="min-height: 125px"
+              >
+                <li class="nav-item">
+                  <span class="user-info">
+                    <!-- Profile image should be set to the profile picture from the id token -->
+                    <img
+                      alt="Profile picture"
+                      class="
+                        nav-user-profile
+                        d-inline-block
+                        profile-image
+                        rounded-circle
+                        mr-3
+                      "
+                      width="50"
+                    />
+                    <!-- Show the user's full name from the id token here -->
+                    <h6 class="d-inline-block nav-user-name user-name"></h6>
+                  </span>
+                </li>
+                <li>
+                  <i class="fas fa-user mr-3"></i>
+                  <a href="/profile" class="route-link">Profile</a>
+                </li>
+
+                <li>
+                  <i class="fas fa-power-off mr-3"></i>
+                  <a href="#" id="qsLogoutBtn" onclick="logout()">Log out</a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </nav>
+      </div>
+
+      <div id="main-content" class="container mt-5 flex-grow-1">
+        <div id="content-home" class="page">
+
+          <div id="pizza-menu" class="my-5">
+            <div id="pizza-suggestion" class="pizza-suggestion"></div>
+            <div class="row" id="pizza-grid">
+              <div class="col-md-4 mb-3">
+                <div class="card p-3 d-flex align-items-center">
+                  <h5 data-pizza="Cheese">Cheese</h5>
+                  <img src="/images/pizza-images/cheese.jpeg" alt="Cheese Pizza" class="img-fluid pizza-img mt-2" style="max-height:150px; object-fit:cover;" />
+                  <div class="input-group mt-2">
+                    <div class="input-group-prepend">
+                      <button class="btn btn-outline-secondary btn-decr" type="button">-</button>
+                    </div>
+                    <input type="number" min="0" value="0" class="form-control pizza-qty" data-pizza="Cheese" />
+                    <div class="input-group-append">
+                      <button class="btn btn-outline-secondary btn-incr" type="button">+</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-4 mb-3">
+                <div class="card p-3 d-flex align-items-center">
+                  <h5 data-pizza="Margherita">Margherita</h5>
+                  <img src="/images/pizza-images/margherita.jpeg" alt="Margherita Pizza" class="img-fluid pizza-img mt-2" style="max-height:150px; object-fit:cover;" />
+                  <div class="input-group mt-2">
+                    <div class="input-group-prepend">
+                      <button class="btn btn-outline-secondary btn-decr" type="button">-</button>
+                    </div>
+                    <input type="number" min="0" value="0" class="form-control pizza-qty" data-pizza="Margherita" />
+                    <div class="input-group-append">
+                      <button class="btn btn-outline-secondary btn-incr" type="button">+</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-4 mb-3">
+                <div class="card p-3 d-flex align-items-center">
+                  <h5 data-pizza="Meat Lovers">Meat Lovers</h5>
+                  <img src="/images/pizza-images/meat-lovers.jpeg" alt="Meat Lovers Pizza" class="img-fluid pizza-img mt-2" style="max-height:150px; object-fit:cover;" />
+                  <div class="input-group mt-2">
+                    <div class="input-group-prepend">
+                      <button class="btn btn-outline-secondary btn-decr" type="button">-</button>
+                    </div>
+                    <input type="number" min="0" value="0" class="form-control pizza-qty" data-pizza="Meat Lovers" />
+                    <div class="input-group-append">
+                      <button class="btn btn-outline-secondary btn-incr" type="button">+</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-4 mb-3">
+                <div class="card p-3 d-flex align-items-center">
+                  <h5 data-pizza="Buffalo">Buffalo</h5>
+                  <img src="/images/pizza-images/buffalo.jpeg" alt="Buffalo Pizza" class="img-fluid pizza-img mt-2" style="max-height:150px; object-fit:cover;" />
+                  <div class="input-group mt-2">
+                    <div class="input-group-prepend">
+                      <button class="btn btn-outline-secondary btn-decr" type="button">-</button>
+                    </div>
+                    <input type="number" min="0" value="0" class="form-control pizza-qty" data-pizza="Buffalo" />
+                    <div class="input-group-append">
+                      <button class="btn btn-outline-secondary btn-incr" type="button">+</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-4 mb-3">
+                <div class="card p-3 d-flex align-items-center">
+                  <h5 data-pizza="Prosciutto & Arugula">Prosciutto & Arugula</h5>
+                  <img src="/images/pizza-images/prosciutto-arugula.jpeg" alt="Prosciutto & Arugula Pizza" class="img-fluid pizza-img mt-2" style="max-height:150px; object-fit:cover;" />
+                  <div class="input-group mt-2">
+                    <div class="input-group-prepend">
+                      <button class="btn btn-outline-secondary btn-decr" type="button">-</button>
+                    </div>
+                    <input type="number" min="0" value="0" class="form-control pizza-qty" data-pizza="Prosciutto & Arugula" />
+                    <div class="input-group-append">
+                      <button class="btn btn-outline-secondary btn-incr" type="button">+</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-4 mb-3">
+                <div class="card p-3 d-flex align-items-center">
+                  <h5 data-pizza="Gluten Free">Gluten Free</h5>
+                  <img src="/images/pizza-images/gluten-free.jpeg" alt="Gluten Free Pizza" class="img-fluid pizza-img mt-2" style="max-height:150px; object-fit:cover;" />
+                  <div class="input-group mt-2">
+                    <div class="input-group-prepend">
+                      <button class="btn btn-outline-secondary btn-decr" type="button">-</button>
+                    </div>
+                    <input type="number" min="0" value="0" class="form-control pizza-qty" data-pizza="Gluten Free" />
+                    <div class="input-group-append">
+                      <button class="btn btn-outline-secondary btn-incr" type="button">+</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="text-center mt-3">
+              <span class="mr-3">Total pizzas: <strong id="total-pizzas">0</strong></span>
+              <button id="place-order" class="btn btn-primary" disabled>Place order</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="page" id="content-profile">
+          <div class="container">
+            <div class="row align-items-center profile-header">
+              <div class="col-md-2">
+                <img
+                  alt="User's profile picture"
+                  class="rounded-circle img-fluid profile-image mb-3 mb-md-0"
+                />
+              </div>
+              <div class="col-md">
+                <h2 class="user-name"></h2>
+                <p class="lead text-muted">
+                  <span class="user-email"></span>
+                  <span id="email-verification-badge"></span>
+                </p>
+                <p class="lead text-muted">
+                  Loyalty Tier:
+                  <span id="loyalty-tier-badge"></span>
+                </p>
+                <p class="lead text-muted">
+                  Coupon Available:
+                  <span id="coupon-badge"></span>
+                </p>
+              </div>
+            </div>
+
+            <div class="row mt-4">
+              <div class="col-md-12">
+                <button
+                  class="btn btn-secondary btn-sm"
+                  type="button"
+                  data-toggle="collapse"
+                  data-target="#profileDataCollapse"
+                  aria-expanded="false"
+                  aria-controls="profileDataCollapse"
+                >
+                  View raw profile data
+                </button>
+                <div class="collapse mt-3" id="profileDataCollapse">
+                  <pre class="rounded">
+                    <code id="profile-data" class="json"></code>
+                  </pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="page" id="content-order-history">
+          <h1>Order History</h1>
+          <div id="order-history-favorite" class="order-history-favorite"></div>
+
+          <p class="mb-5">
+            <a href="#" class="btn btn-primary mt-2" id="refresh-orders">Refresh orders</a>
+          </p>
+
+          <div class="result-block-container">
+            <div class="result-block reset-on-nav">
+              <div id="orders-list" class="orders-list">
+                <p class="text-muted">No orders yet.</p>
+              </div>
+              
+              <button
+                class="btn btn-secondary btn-sm mt-3"
+                type="button"
+                data-toggle="collapse"
+                data-target="#ordersDataCollapse"
+                aria-expanded="false"
+                aria-controls="ordersDataCollapse"
+              >
+                View raw order history data
+              </button>
+              <div class="collapse mt-3" id="ordersDataCollapse">
+                <pre>
+                  <code class="js rounded" id="orders-json">[]</code>
+                </pre>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      </div>
+
+    </div>
+
+    <!-- Alert Modal -->
+    <div class="modal fade" id="alertModal" tabindex="-1" role="dialog" aria-labelledby="alertModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header" id="alertModalHeader">
+            <h5 class="modal-title" id="alertModalLabel"></h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body" id="alertModalBody">
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.auth0.com/js/auth0-spa-js/2.0/auth0-spa-js.production.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/highlight.min.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/app.js"></script>
+  </body>
+</html>
