@@ -2,7 +2,8 @@
 let auth0Client = null;
 
 /**
- * Starts the authentication flow
+ * Starts the authentication flow using Auth0 Universal Login.
+ * @param {string} [targetUrl] Optional SPA route to return to after login
  */
 const login = async (targetUrl) => {
   try {
@@ -25,7 +26,7 @@ const login = async (targetUrl) => {
 };
 
 /**
- * Executes the logout flow
+ * Executes the logout flow and returns to the SPA root.
  */
 const logout = async () => {
   try {
@@ -41,12 +42,13 @@ const logout = async () => {
 };
 
 /**
- * Retrieves the auth configuration from the server
+ * Retrieves the auth configuration from the server.
+ * @returns {Promise<Response>} Fetch response for auth_config.json
  */
 const fetchAuthConfig = () => fetch("/auth_config.json");
 
 /**
- * Initializes the Auth0 client
+ * Initializes the Auth0 client using SPA SDK.
  */
 const configureClient = async () => {
   const response = await fetchAuthConfig();
@@ -59,9 +61,10 @@ const configureClient = async () => {
 };
 
 /**
- * Checks to see if the user is authenticated. If so, `fn` is executed. Otherwise, the user
- * is prompted to log in
- * @param {*} fn The function to execute if the user is logged in
+ * Checks authentication state before executing `fn`.
+ * If unauthenticated, triggers login with a return URL.
+ * @param {Function} fn Function to execute if the user is logged in
+ * @param {string} targetUrl Route to return to after login
  */
 const requireAuth = async (fn, targetUrl) => {
   const isAuthenticated = await auth0Client.isAuthenticated();

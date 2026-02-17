@@ -1,4 +1,7 @@
-// URL mapping, from hash to a function that responds to that URL action
+/**
+ * SPA route map (path -> handler).
+ * Handlers may call `requireAuth` to enforce login.
+ */
 const router = {
   "/": () => showContent("content-home"),
   "/profile": () =>
@@ -6,7 +9,7 @@ const router = {
   "/login": () => login()
 };
 
-//Declare helper functions
+// Declare helper functions
 
 /**
  * Iterates over the elements matching 'selector' and passes them
@@ -53,6 +56,10 @@ const showContent = (id) => {
   document.getElementById(id).classList.remove("hidden");
 };
 
+/**
+ * Normalizes a pizza name for safe comparisons.
+ * @param {*} value Raw pizza name
+ */
 const normalizePizzaName = (value) =>
   String(value || "")
     .toLowerCase()
@@ -61,6 +68,10 @@ const normalizePizzaName = (value) =>
     .replace(/\s+/g, " ")
     .trim();
 
+/**
+ * Adds a suggestion banner based on favorite pizza selection.
+ * @param {string|null|undefined} favorite Favorite pizza name
+ */
 const applySuggestion = (favorite) => {
   const suggestionEl = document.getElementById("pizza-suggestion");
   if (!suggestionEl) return;
@@ -86,6 +97,10 @@ const applySuggestion = (favorite) => {
     : "";
 };
 
+/**
+ * Highlights the favorite pizza in the menu.
+ * @param {string|null|undefined} favorite Favorite pizza name
+ */
 const applyFavoriteBadge = (favorite) => {
   document.querySelectorAll(".favorite-badge").forEach((el) => el.remove());
   document.querySelectorAll("#pizza-grid h5[data-pizza]").forEach((title) => {
@@ -109,7 +124,8 @@ const applyFavoriteBadge = (favorite) => {
 };
 
 /**
- * Updates the user interface
+ * Updates UI state after auth changes.
+ * Renders profile data and favorite pizza callouts.
  */
 const updateUI = async () => {
   try {

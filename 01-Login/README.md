@@ -1,39 +1,90 @@
 # Sample 01 - Login
 
-The purpose of this article is to demonstrate how simple it is to set up and use the new Single Page Application SDK, and authenticate a user in your application using Auth0's Universal Login Page.
+This sample demonstrates how to set up and use the Auth0 SPA SDK to authenticate users via Auth0 Universal Login. It is a minimal single‑page app with a profile screen and simple routing.
 
-## Running the Sample Application
+## Contents
 
-The sample can be run locally, by cloning the repository to your machine and then following the steps below.
+- [Overview](#overview)
+- [Prerequisites](#prerequisites)
+- [Install](#install)
+- [Configure Auth0](#configure-auth0)
+- [Run](#run)
+- [How it Works](#how-it-works)
+- [Project Structure](#project-structure)
+- [Troubleshooting](#troubleshooting)
 
-### Specifying Auth0 Credentials
+## Overview
 
-To specify the application client ID and domain, make a copy of `auth_config.json.example` and rename it to `auth_config.json`. Then open it in a text editor and supply the values for your application:
+- Vanilla JavaScript SPA
+- Auth0 SPA SDK for login/logout and session handling
+- Express server for static hosting
 
-```json
-{
-  "domain": "{DOMAIN}",
-  "clientId": "{CLIENT_ID}"
-}
-```
+## Prerequisites
 
-### Installation
+- Node.js 16+ and npm
+- An Auth0 **Single Page Application**
+
+## Install
 
 After cloning the repository, run:
 
 ```bash
-$ npm install
+npm install
 ```
 
-This will install all of the necessary packages in order for the sample to run.
+## Configure Auth0
 
-### Running the Application
+Copy [auth_config.json.example](auth_config.json.example) to `auth_config.json` and update the values:
 
-This version of the application uses an [Express](https://expressjs.com) server that can serve the site from a single page. To start the app from the terminal, run:
+```json
+{
+  "domain": "YOUR_TENANT.auth0.com",
+  "clientId": "YOUR_SPA_CLIENT_ID"
+}
+```
+
+## Run
+
+Start the app from the terminal:
 
 ```bash
-$ npm run dev
+npm run dev
 ```
+
+Open the application in the browser at [http://localhost:3000](http://localhost:3000).
+
+## How it Works
+
+- **Login** uses the Auth0 Universal Login page.
+- **Logout** clears the Auth0 session and returns to the SPA root.
+- **Route handling** is client‑side, driven by `showContentFromUrl()`.
+- **Profile rendering** uses the ID token data returned by Auth0.
+
+Key client logic:
+
+- Auth flows and routing: [public/js/app.js](public/js/app.js)
+- UI rendering and profile badges: [public/js/ui.js](public/js/ui.js)
+
+## Project Structure
+
+```
+01-Login/
+  auth_config.json.example  # Template for Auth0 tenant and client ID
+  auth_config.json          # Local config (not committed)
+  server.js                 # Express server
+  public/
+    index.html              # SPA shell
+    css/main.css            # Visual styles
+    js/app.js               # Auth0 + routing
+    js/ui.js                # UI helpers and profile rendering
+  bin/www                   # Express server bootstrap
+```
+
+## Troubleshooting
+
+- **Login redirects but stays logged out**: verify `domain` and `clientId` in `auth_config.json`.
+- **Universal Login error**: confirm allowed callback and logout URLs in Auth0 app settings.
+- **Profile doesn’t render**: ensure `updateUI()` runs after successful authentication.
 
 ## Frequently Asked Questions
 
