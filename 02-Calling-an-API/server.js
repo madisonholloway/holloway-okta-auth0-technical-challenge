@@ -15,12 +15,23 @@ const { auth, requiredScopes } = require("express-oauth2-jwt-bearer");
 const axios = require('axios');
 const { v4: uuidv4 } = require('uuid');
 const { join } = require("path");
-const authConfig = require("./auth_config.json");
 
 const app = express();
 
+// Read auth config from environment variables (or fall back to auth_config.json for local development)
+let authConfig;
+try {
+  authConfig = require("./auth_config.json");
+} catch (err) {
+  authConfig = {
+    domain: process.env.AUTH0_DOMAIN,
+    clientId: process.env.AUTH0_CLIENT_ID,
+    audience: process.env.AUTH0_AUDIENCE
+  };
+}
+
 if (!authConfig.domain || !authConfig.audience) {
-  throw new Error("Please make sure that auth_config.json is in place and populated");
+  throw new Error("Please configure Auth0 credentials via environment variables (AUTH0_DOMAIN, AUTH0_AUDIENCE) or auth_config.json file");
 }
 
 app.use(morgan("dev"));
